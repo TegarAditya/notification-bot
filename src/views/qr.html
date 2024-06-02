@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>WhatsApp QR Code</h1>
+    <div id="qrCodeContainer">Waiting for QR code...</div>
+
+    <script>
+        const ws = new WebSocket(`ws://${location.host}`);
+
+        ws.onmessage = function(event) {
+            const message = JSON.parse(event.data);
+            if (message.type === 'qr') {
+                document.getElementById('qrCodeContainer').innerHTML = `<img src="${message.data}">`;
+            } else if (message.type === 'ready') {
+                document.getElementById('qrCodeContainer').innerHTML = 'Client is ready!';
+            }
+        };
+    </script>
+</body>
+</html>
