@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-const path = require('node:path');
+const path = require("node:path");
 const { Client, LocalAuth } = require("whatsapp-web.js");
 const qrcode = require("qrcode");
 const express = require("express");
@@ -38,7 +38,7 @@ const client = new Client({
 
 const PORT = process.env.PORT || 3000;
 
-let qrCodeData = '';
+let qrCodeData = "";
 let isClientReady = false;
 
 app.get("/", (req, res) => {
@@ -48,17 +48,17 @@ app.get("/", (req, res) => {
     });
 });
 
-client.on('qr', (qr) => {
+client.on("qr", (qr) => {
     qrcode.toDataURL(qr, { small: true }, (err, url) => {
         if (err) {
-            console.error('Error generating QR code', err);
+            console.error("Error generating QR code", err);
             return;
         }
         qrCodeData = url;
         // Send the QR code to all connected WebSocket clients
-        wss.clients.forEach(client => {
+        wss.clients.forEach((client) => {
             if (client.readyState === 1) {
-                client.send(JSON.stringify({ type: 'qr', data: url }));
+                client.send(JSON.stringify({ type: "qr", data: url }));
             }
         });
     });
@@ -68,9 +68,9 @@ client.on("ready", () => {
     isClientReady = true;
     console.log("Client is ready!");
     // Notify all connected WebSocket clients that the client is ready
-    wss.clients.forEach(client => {
+    wss.clients.forEach((client) => {
         if (client.readyState === 1) {
-            client.send(JSON.stringify({ type: 'ready' }));
+            client.send(JSON.stringify({ type: "ready" }));
         }
     });
 });
@@ -86,15 +86,11 @@ client.on("message", async (message) => {
     }
 });
 
-app.get('/qr', (req, res) => {
+app.get("/qr", (req, res) => {
     if (qrCodeData) {
-        res.sendFile(path.join(__dirname, '/views/qr.html'));
+        res.sendFile(path.join(__dirname, "/views/qr.html"));
     } else {
-        if (isClientReady) {
-            res.status(200).send('Client is ready');
-        } else {
-            res.status(500).send('Client is not ready yet');
-        }
+        res.status(500).send("Client is not ready yet");
     }
 });
 
@@ -129,12 +125,12 @@ const server = app.listen(PORT, () => {
 
 const wss = new Server({ server });
 
-wss.on('connection', (ws) => {
-    console.log('New WebSocket connection');
+wss.on("connection", (ws) => {
+    console.log("New WebSocket connection");
     if (qrCodeData) {
-        ws.send(JSON.stringify({ type: 'qr', data: qrCodeData }));
+        ws.send(JSON.stringify({ type: "qr", data: qrCodeData }));
     }
     if (isClientReady) {
-        ws.send(JSON.stringify({ type: 'ready' }));
+        ws.send(JSON.stringify({ type: "ready" }));
     }
 });
