@@ -16,6 +16,7 @@ function setEnv(key, value) {
                 return console.log(err);
             }
             console.log("KEY GENERATED");
+            console.log(result);
         });
     });
 }
